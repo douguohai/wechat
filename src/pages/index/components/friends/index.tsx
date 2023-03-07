@@ -1,11 +1,11 @@
-import React, {PropsWithChildren} from "react";
+import React from "react";
 import './index.css'
-import {Elevator, Icon, SearchBar} from '@nutui/nutui-react-taro';
-import {ScrollView} from "@tarojs/components";
+import {Avatar, Elevator, SearchBar} from '@nutui/nutui-react-taro';
+import Taro from "@tarojs/taro";
 
 const dataList = [
     {
-        title_1: 'A',
+        title: 'A',
         list: [
             {
                 name: '安徽',
@@ -38,7 +38,7 @@ const dataList = [
         ],
     },
     {
-        title_1: 'B',
+        title: 'B',
         list: [
             {
                 name: '北京',
@@ -47,7 +47,7 @@ const dataList = [
         ],
     },
     {
-        title_1: 'G',
+        title: 'G',
         list: [
             {
                 name: '广西',
@@ -60,7 +60,7 @@ const dataList = [
         ],
     },
     {
-        title_1: 'H',
+        title: 'H',
         list: [
             {
                 name: '湖南',
@@ -83,7 +83,11 @@ interface isState {
     tabIndex: number,
 }
 
-export default class Friends extends React.Component<PropsWithChildren, isState> {
+interface isProps {
+    friendMsgHeight: number,
+}
+
+export default class Friends extends React.Component<isProps, isState> {
     constructor(props: any) {
         super(props);
         this.state = {
@@ -100,32 +104,63 @@ export default class Friends extends React.Component<PropsWithChildren, isState>
         console.log(key)
     }
 
+    componentDidMount() {
+        console.log("11111")
+        this.getTabToTop()
+
+    }
+
+    getTabToTop = () => {
+        const queryDom = Taro.createSelectorQuery();
+        queryDom
+            .select("#friendList")
+            .boundingClientRect((rec) => {
+                console.log(rec)
+                if (!rec?.top) {
+                    setTimeout(() => {
+                        console.log("again")
+                        this.getTabToTop();
+                    }, 200);
+                } else {
+                    // this.setState({
+                    //     friend_msg_height: rec.height + rec.bottom
+                    // })
+                    return
+                }
+            })
+            .exec();
+    }
+
+
     render() {
         return (
-            <div>
-                <SearchBar placeholder="搜索" maxLength={10} align="center"/>
-                <ScrollView style={{display: 'flex', flex: 1}}>
-                    <Elevator
-                        indexList={dataList}
-                        height="500"
-                        acceptKey={"title_1"}
-                        // isSticky={true}
-                        onClickItem={(key: string, item: any) => this.onClickItem(key, item)}
-                        onClickIndex={(key: string) => this.onClickIndex(key)}
-                    >
-                        <Elevator.Context.Consumer>
-                            {(value) => {
-                                return (
-                                    <>
-                                        <Icon name="people" size={20}></Icon>
-                                        <span style={{marginLeft: '15px'}}>{value?.name}</span>
-                                    </>
-                                )
-                            }}
-                        </Elevator.Context.Consumer>
-                    </Elevator>
-                </ScrollView>
+            <div style={{display: 'flex', backgroundColor: 'red', flexDirection: 'column'}}>
+                <SearchBar  placeholder="搜索" maxLength={10} align="center"/>
+                <Elevator
+                    id='friendList'
+                    indexList={dataList}
+                    height={this.props.friendMsgHeight}
+                    acceptKey={"title"}
+                    isSticky={true}
+                    spaceHeight={30}
+                    onClickItem={(key: string, item: any) => this.onClickItem(key, item)}
+                    onClickIndex={(key: string) => this.onClickIndex(key)}
+                >
+                    <Elevator.Context.Consumer>
+                        {(value) => {
+                            return (
+                                <>
+                                    <Avatar
+                                        icon="https://img12.360buyimg.com/imagetools/jfs/t1/143702/31/16654/116794/5fc6f541Edebf8a57/4138097748889987.png"
+                                        shape="square"/>
+                                    <span style={{marginLeft: '15px'}}>{value?.name}</span>
+                                </>
+                            )
+                        }}
+                    </Elevator.Context.Consumer>
+                </Elevator>
+                <div style={{backgroundColor: 'red', flex: 1}}>hah</div>
             </div>
         );
-    }
+    };
 }

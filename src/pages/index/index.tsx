@@ -5,11 +5,13 @@ import Friends from "./components/friends/index";
 import MsgList from "./components/msglist/index";
 import My from "./components/my/index";
 import {View} from "@tarojs/components";
+import Taro from "@tarojs/taro";
 
 
 interface isState {
     tabIndex: number,
-    component: any
+    component: any,
+    friend_msg_height: number,
 }
 
 class Index extends Component<PropsWithChildren, isState> {
@@ -17,17 +19,16 @@ class Index extends Component<PropsWithChildren, isState> {
         super(props);
         this.state = {
             tabIndex: 0,
-            component: <View/>
+            component: <View/>,
+            friend_msg_height: 0
         };
     }
 
     componentWillMount() {
         this._switchTab(0)
+        // this.getTabToTop()
     }
 
-    onShow() {
-
-    }
 
     _switchTab(value: number) {
         console.log(value)
@@ -43,8 +44,11 @@ class Index extends Component<PropsWithChildren, isState> {
                 console.log(value)
                 this.setState({
                     tabIndex: 1,
-                    component: <Friends/>
+                    component: <Friends friendMsgHeight={this.state.friend_msg_height}/>
+                }, () => {
+                    // this.getTabToTop()
                 })
+
                 return
             case 2:
                 console.log(value)
@@ -57,11 +61,35 @@ class Index extends Component<PropsWithChildren, isState> {
     }
 
 
+    // 获取tab距离顶部的高度值
+    getTabToTop = () => {
+        const queryDom = Taro.createSelectorQuery();
+        queryDom
+            .select("#page")
+            .boundingClientRect((rec) => {
+                console.log(rec)
+                if (!rec?.top) {
+                    setTimeout(() => {
+                        console.log("again")
+                        this.getTabToTop();
+                    }, 200);
+                } else {
+                    // this.setState({
+                    //     friend_msg_height: rec.height + rec.bottom
+                    // })
+                    return
+                }
+            })
+            .exec();
+    }
+
+
+
     render() {
         return (
-            <div>
+            <div id="page">
                 {this.state.component}
-                <Tabbar bottom visible={this.state.tabIndex} safeAreaInsetBottom={true} onSwitch={(_child, idx) => {
+                <Tabbar  bottom visible={this.state.tabIndex} safeAreaInsetBottom={true} onSwitch={(_child, idx) => {
                     this._switchTab(idx)
                 }}>
                     <TabbarItem tabTitle="微信" icon="home" num="110"/>

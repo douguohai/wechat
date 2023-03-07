@@ -1,0 +1,13 @@
+{
+  "miniprogramRoot": "./",
+  "projectname": "wechat",
+  "description": "模拟微信",
+  "appid": "touristappid",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "miniprogram"
+}
